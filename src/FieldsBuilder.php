@@ -561,48 +561,60 @@ class FieldsBuilder extends ParentDelegationBuilder implements NamedBuilder
 
 	/**
 	 * Add a column field. All fields added after will be added to this column until `addColumnEnd` is called.
-	 * @param string $name Column name
+	 * @param string|null $name Column name, random when omitted. A width like '4/12' may be passed as first argument.
 	 * @param string $columns Column width, accepts '1/12' - '12/12'
 	 * @throws FieldNameCollisionException if name already exists.
 	 * @return FieldBuilder
 	 * @see FieldsBuilder::addColumnEnd()
 	 * @see https://www.acf-extended.com/features/fields/columns/ for more details.
 	 */
-	public function addColumn(string $name, string $columns = '6/12') 
+	public function addColumn(?string $name = null, string $columns = '6/12')
 	{
-		return $this->addField($name, 'acfe_column', [
+		if ($name !== null && preg_match('#^\d{1,2}/12$#', $name)) {
+			$columns = $name;
+			$name = null;
+		}
+
+		return $this->addField($name ?? $this->randomColumnName('col'), 'acfe_column', [
 			'columns' => $columns,
 		]);
 	}
 
 	/**
 	 * End a column field.
-	 * @param string $name Column name
+	 * @param string|null $name Column name, random when omitted
 	 * @throws FieldNameCollisionException if name already exists.
 	 * @return FieldBuilder
 	 * @see FieldsBuilder::addColumn()
 	 * @see https://www.acf-extended.com/features/fields/columns/ for more details.
 	 */
-	public function addColumnEnd(string $name = 'col_end') 
+	public function addColumnEnd(?string $name = null)
 	{
-		return $this->addField($name, 'acfe_column', [
+		return $this->addField($name ?? $this->randomColumnName('col_end'), 'acfe_column', [
 			'endpoint' => '1',
 		]);
 	}
-	
+
+	private function randomColumnName(string $prefix): string
+	{
+		do {
+			$name = $prefix . '_' . bin2hex(random_bytes(4));
+		} while ($this->fieldExists($name));
+
+		return $name;
+	}
+
 	/**
 	 * End a column field.
-	 * @param string $name Column name
+	 * @param string|null $name Column name, random when omitted
 	 * @throws FieldNameCollisionException if name already exists.
 	 * @return FieldBuilder
 	 * @see FieldsBuilder::addColumn()
 	 * @see https://www.acf-extended.com/features/fields/columns/ for more details.
 	 */
-	public function endColumn(string $name = 'col_end') 
+	public function endColumn(?string $name = null)
 	{
-		return $this->addField($name, 'acfe_column', [
-			'endpoint' => '1',
-		]);
+		return $this->addColumnEnd($name);
 	}
 
     /**
