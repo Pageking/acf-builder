@@ -589,6 +589,21 @@ class FieldsBuilder extends ParentDelegationBuilder implements NamedBuilder
 			'endpoint' => '1',
 		]);
 	}
+	
+	/**
+	 * End a column field.
+	 * @param string $name Column name
+	 * @throws FieldNameCollisionException if name already exists.
+	 * @return FieldBuilder
+	 * @see FieldsBuilder::addColumn()
+	 * @see https://www.acf-extended.com/features/fields/columns/ for more details.
+	 */
+	public function endColumn(string $name = 'col_end') 
+	{
+		return $this->addField($name, 'acfe_column', [
+			'endpoint' => '1',
+		]);
+	}
 
     /**
      * Addes a message field
